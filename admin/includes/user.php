@@ -104,6 +104,8 @@ class User
 
     }
 
+    
+
     public function update()
     {
         global $database;
