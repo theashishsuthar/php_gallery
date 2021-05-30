@@ -3,6 +3,7 @@
 class User
 {
     protected static $db_table = "users";
+    protected static $db_table_fields = array('username', 'password', 'first_name', 'last_name');
     public $id;
     public $username;
     public $password;
@@ -74,7 +75,28 @@ class User
 
     protected function properties()
     {
-        return get_object_vars($this);
+        $properties = array();
+
+        foreach (self::$db_table_fields as $db_fields) {
+            if (property_exists($this, $db_fields)) {
+                $properties[$db_fields] = $this->$db_fields;
+            }
+        }
+
+        return $properties;
+    }
+
+    protected function clean_properties()
+    {
+        global $database;
+
+        $clean_properties = array();
+
+        foreach ($this->properties() as $key => $value) {
+            $clean_properties[$key] = $database->escape_string($value);
+        }
+
+        return $clean_properties;
     }
 
     public function save()
@@ -86,10 +108,10 @@ class User
     {
         global $database;
 
-        $properties = $this->properties();
+        $properties = $this->clean_properties();
 
-        $sql = "INSERT INTO " . self::$db_table . "(". implode(",",array_keys($properties)).") ";
-        $sql .= "VALUES ('".implode("','",array_values($properties))."')";
+        $sql = "INSERT INTO " . self::$db_table . "(" . implode(",", array_keys($properties)) . ") ";
+        $sql .= "VALUES ('" . implode("','", array_values($properties)) . "')";
         // $sql .= $database->escape_string($this->username) . "', '";
         // $sql .= $database->escape_string($this->password) . "', '";
         // $sql .= $database->escape_string($this->first_name) . "', '";
@@ -104,17 +126,20 @@ class User
 
     }
 
-    //This is comment
-
     public function update()
     {
         global $database;
 
+        $properties = $this->clean_properties();
+
+        $properties_pairs = array();
+
+        foreach ($properties as $key => $value) {
+            $properties_pairs[] = "{$key}='{$value}'";
+        }
+
         $sql = "UPDATE " . self::$db_table . " SET ";
-        $sql .= "username= '" . $database->escape_string($this->username) . "', ";
-        $sql .= "password= '" . $database->escape_string($this->password) . "', ";
-        $sql .= "first_name= '" . $database->escape_string($this->first_name) . "', ";
-        $sql .= "last_name= '" . $database->escape_string($this->last_name) . "' ";
+        $sql .= implode(", ", $properties_pairs);
         $sql .= " WHERE id= " . $database->escape_string($this->id);
 
         $database->query($sql);

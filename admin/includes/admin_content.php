@@ -11,9 +11,13 @@ $user = User::find_user_by_id(2);
 
 // $user = new User();
 
-$user->username="theashishsuthar";
+$user->username="newashish";
+$user->password ="1234";
+$user->first_name="Ashihs";
+$user->last_name = "Gajjar";
 
-$user->save();
+
+$user->update();
 
 ?>
                 Blank Page
