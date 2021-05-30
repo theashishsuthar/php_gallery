@@ -6,8 +6,14 @@
             <h1 class="page-header">
                 <?php
 
-$user = User::find_user_by_id(8);
-$user->delete();
+$user = User::find_user_by_id(2);
+// $user->delete();
+
+// $user = new User();
+
+$user->username="theashishsuthar";
+
+$user->save();
 
 ?>
                 Blank Page
